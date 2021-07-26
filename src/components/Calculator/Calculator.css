@@ -16,3 +16,8 @@ form button {
   font-size: 1rem;
   padding: 0.5rem;
 }
+
+.error-message {
+  margin-top: 1rem;
+  color: red;
+}
