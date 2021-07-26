@@ -1,0 +1,18 @@
+form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+form div {
+  margin-bottom: 1rem;
+  max-width: 263px;
+}
+
+form button {
+  max-width: 263px;
+  width: 100%;
+  font-size: 1rem;
+  padding: 0.5rem;
+}
