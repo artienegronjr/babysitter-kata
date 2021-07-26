@@ -10,6 +10,7 @@ export default function Calculator() {
   const [bedTime, setBedTime] = React.useState(null);
   const [endTime, setEndTime] = React.useState(null);
   const [validationError, setValidationError] = React.useState("");
+  const [nightlyCharge, setNightlyCharge] = React.useState("");
 
   const convertTime = (hour) => {
     //Will convert the given hour to an integer that represents an hour within a possible work day (5pm - 4am)
@@ -23,9 +24,66 @@ export default function Calculator() {
     }
   }
 
-  const validateSubmission = (e) => {
-    e.preventDefault(); //Prevents button from submitting form
+  const calculateNightlyCharge = (e) => {
+    e.preventDefault(); //Prevents form submission on button click
+    
+    const isSubmissionValid = validateSubmission();
 
+    if (!isSubmissionValid) {
+      setNightlyCharge("");
+      return;
+    }
+
+    const midnightRate = 16;
+    const bedtimeRate = 8;
+    const startRate = 12;
+    
+    let midnightHours = calculateMidnightHours();
+    let bedTimeHours = calculateBedTimeHours();
+    let startHours = calculateStartHours();
+
+    const totalPay = (midnightHours * midnightRate) + (bedTimeHours * bedtimeRate) + (startHours * startRate);
+
+    setNightlyCharge("Nightly Charge: $" + totalPay);
+  }
+
+  const calculateMidnightHours = () => {
+    const endHour = convertTime(endTime.getHours());
+
+    if (endHour > 7){
+      return endHour - 7;
+    }
+
+    return 0;
+  }
+
+  const calculateBedTimeHours = () => {
+    const bedHour = convertTime(bedTime.getHours());
+
+    if (bedHour < 7){ //If bed time is before midnight, calculate hours worked between bed time and midnight
+      return 7 - bedHour;
+    }
+    else { //Otherwise, these hours should be paid at the midnight rate
+      return 0;
+    }
+  }
+
+  const calculateStartHours = () => {
+    const startHour = convertTime(startTime.getHours());
+    const bedHour = convertTime(bedTime.getHours());
+
+    if (startHour >= 7){ //If start time is after midnight, there were no hours worked at the base rate
+      return 0;
+    }
+    else if (bedHour > 7){ //If bed time is after midnight, return hours worked between start time and midnight
+      return 7 - startHour;
+    }
+    else if (bedHour < 7) { //If bed time is before midnight, return hours worked between start time and bed time
+      return bedHour - startHour;
+    }
+  }
+
+  const validateSubmission = (e) => {
     let isValid = true;
 
     isValid = validateStartTime();
@@ -151,9 +209,10 @@ export default function Calculator() {
           }}
           renderInput={(params) => <TextField {...params} />}
         />
-        <button onClick={validateSubmission}>Calculate</button>
+        <button onClick={calculateNightlyCharge}>Calculate</button>
       </form>
       <p className="error-message">{validationError}</p>
+      <p className="nightly-charge">{nightlyCharge}</p>
       </LocalizationProvider>
     </div>
   )
