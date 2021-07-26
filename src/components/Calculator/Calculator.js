@@ -11,6 +11,18 @@ export default function Calculator() {
   const [endTime, setEndTime] = React.useState(null);
   const [validationError, setValidationError] = React.useState("");
 
+  const convertTime = (hour) => {
+    //Will convert the given hour to an integer that represents an hour within a possible work day (5pm - 4am)
+    //Makes validation calculations easier to deal with
+    //5pm - 4am => 0 - 11
+    if (hour >= 17 && hour <= 23){
+      return hour - 17;
+    }
+    else {
+      return hour + 7;
+    }
+  }
+
   const validateSubmission = (e) => {
     e.preventDefault(); //Prevents button from submitting form
 
@@ -39,15 +51,16 @@ export default function Calculator() {
     let isValid = true;
 
     if (startTime === null){
-      setValidationError("You must enter a start time.");
       isValid = false;
+      setValidationError("You must enter a start time.");
       return isValid;
     }
 
-    //Start time should be between 5pm and 3am
-    if (startTime.getHours() >= 4 && startTime.getHours() <= 16) {
-      setValidationError("You must enter a valid start time between 5pm and 3am.");
+    const startHour = convertTime(startTime.getHours());
+
+    if (startHour > 11) {
       isValid = false;
+      setValidationError("You must enter a valid start time between 5pm and 3am.");
       return isValid;
     }
 
@@ -58,22 +71,24 @@ export default function Calculator() {
     let isValid = true;
 
     if (bedTime === null){
+      isValid = false;
       setValidationError("You must enter a bed time.");
-      isValid = false;
       return isValid;
     }
 
-    //Bed time must be after start time
-    if (bedTime.getHours() < startTime.getHours()){
+    const startHour = convertTime(startTime.getHours());
+    const bedHour = convertTime(bedTime.getHours());
+    const endHour = convertTime(endTime.getHours());
+
+    if (bedHour < startHour){
+      isValid = false;
       setValidationError("Bedtime cannot be before the start time.");
-      isValid = false;
       return isValid;
     }
 
-    //Bed time must be before end time
-    if (bedTime.getHours() > endTime.getHours()){
-      setValidationError("Bedtime cannot be after the end time.");
+    if (bedHour > endHour){
       isValid = false;
+      setValidationError("Bedtime cannot be after the end time.");
       return isValid;
     }
 
@@ -85,22 +100,23 @@ export default function Calculator() {
     let isValid = true;
 
     if (endTime === null){
+      isValid = false;
       setValidationError("You must enter an end time.");
-      isValid = false;
       return isValid;
     }
 
-    //End time must be after start time
-    if (endTime.getHours() <= startTime.getHours()){
+    const startHour = convertTime(startTime.getHours());
+    const endHour = convertTime(endTime.getHours());
+
+    if (endHour <= startHour){
+      isValid = false;
       setValidationError("The end time must be after the start time.");
-      isValid = false;
       return isValid;
     }
 
-    //End time cannot be after 4am
-    if (endTime.getHours() > 4){
-      setValidationError("The end time must not be after 4am.");
+    if (endHour > 11){
       isValid = false;
+      setValidationError("The end time must not be after 4am.");
       return isValid;
     }
 
