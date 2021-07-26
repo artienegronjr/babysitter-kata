@@ -181,6 +181,15 @@ export default function Calculator() {
     return isValid;
   }
 
+  const shouldDisableTime = (timeValue, clockType) => {
+    //Disables the ability to select non zero minutes.
+    if (clockType === 'minutes' && timeValue !== 0) {
+      return true;
+    }
+  
+    return false;
+  }
+
   return (
     <div className="Calculator">
       <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -192,6 +201,7 @@ export default function Calculator() {
             setStartTime(newValue);
           }}
           renderInput={(params) => <TextField {...params} />}
+          shouldDisableTime={shouldDisableTime}
         />
         <TimePicker 
           label="Bed Time"
@@ -200,6 +210,7 @@ export default function Calculator() {
             setBedTime(newValue);
           }}
           renderInput={(params) => <TextField {...params} />}
+          shouldDisableTime={shouldDisableTime}
         />
         <TimePicker 
           label="End Time"
@@ -208,6 +219,7 @@ export default function Calculator() {
             setEndTime(newValue);
           }}
           renderInput={(params) => <TextField {...params} />}
+          shouldDisableTime={shouldDisableTime}
         />
         <button onClick={calculateNightlyCharge}>Calculate</button>
       </form>
